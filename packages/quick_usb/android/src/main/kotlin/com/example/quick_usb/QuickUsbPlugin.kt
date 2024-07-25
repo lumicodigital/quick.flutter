@@ -18,7 +18,7 @@ private const val ACTION_USB_PERMISSION = "com.example.quick_usb.USB_PERMISSION"
 
 private val pendingIntentFlag =
   if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-    PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+    PendingIntent.FLAG_MUTABLE  or PendingIntent.FLAG_ALLOW_UNSAFE_IMPLICIT_INTENT or PendingIntent.FLAG_UPDATE_CURRENT
   } else {
     PendingIntent.FLAG_UPDATE_CURRENT
   }
@@ -86,7 +86,12 @@ class QuickUsbPlugin : FlutterPlugin, MethodCallHandler {
               ))
             }
           }
-          context.registerReceiver(permissionReceiver, IntentFilter(ACTION_USB_PERMISSION))
+          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+              context.registerReceiver(permissionReceiver, IntentFilter(ACTION_USB_PERMISSION),
+                  Context.RECEIVER_EXPORTED)
+          }else {
+              context.registerReceiver(permissionReceiver, IntentFilter(ACTION_USB_PERMISSION));
+          }
           manager.requestPermission(device, pendingPermissionIntent(context))
         } else {
           result.success(mapOf(
@@ -118,7 +123,12 @@ class QuickUsbPlugin : FlutterPlugin, MethodCallHandler {
               result.success(granted);
             }
           }
-          context.registerReceiver(receiver, IntentFilter(ACTION_USB_PERMISSION))
+          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+              context.registerReceiver(receiver, IntentFilter(ACTION_USB_PERMISSION),
+                  Context.RECEIVER_EXPORTED)
+          }else {
+              context.registerReceiver(receiver, IntentFilter(ACTION_USB_PERMISSION));
+          }
           manager.requestPermission(device, pendingPermissionIntent(context))
         }
       }
